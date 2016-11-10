@@ -1,4 +1,4 @@
-#!/usr5:bin/python
+#!/usr/bin/python
 
 # Computes area and perimeter as new attributes for all features.
 # Created to debug anomalies with area and perimeter computed values.

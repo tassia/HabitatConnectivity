@@ -1,4 +1,4 @@
-#!/user/bin/python
+#!/usr/bin/python
 
 # Aggregates all polygons of Clipped_Parcels data into a single
 # Merged_Parcels shapefile
