@@ -19,7 +19,7 @@ _PERIMETER_FIELD = 'Perimeter'
 _PARCEL_FIELD = 'Parcel_ID'
 _PATCH_FIELD = 'Patch_ID'
 
-# Attribute to be created for the mergerd_parcels data
+# Attributes to be created for the mergerd_parcels data
 fields = QgsFields()
 fields.append(QgsField(_LULC_FIELD, QVariant.Int))
 fields.append(QgsField(_AREA_FIELD, QVariant.Double))
@@ -27,7 +27,7 @@ fields.append(QgsField(_PERIMETER_FIELD, QVariant.Double))
 fields.append(QgsField(_PARCEL_FIELD, QVariant.Int))
 fields.append(QgsField(_PATCH_FIELD, QVariant.Int))
 
-# Create writer to be produced output shapefile
+# Create writer to produce output shapefile
 merged_parcels_writer = QgsVectorFileWriter(MERGED_PARCELS_PATH, "CP1250", fields, QGis.WKBPolygon, QgsCoordinateReferenceSystem(102745, QgsCoordinateReferenceSystem.EpsgCrsId), "ESRI Shapefile")
 
 if merged_parcels_writer.hasError() != QgsVectorFileWriter.NoError:

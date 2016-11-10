@@ -1,13 +1,18 @@
+#!/usr/bin/python
+
+# This script ranks parcels in regards to their potential to connect
+# natural habitats
+
 from qgis.utils import iface
 from PyQt4.QtCore import QVariant
 from geopandas import GeoSeries
 from shapely.wkb import loads
 from qgis.core import *
 
-# paths to habitat block and parcels files
-LULC_PATH = "/media/tassia/rouge/ENVR401/Richford-GIS/Ranked_Parcels/LULC_Missisquoi_Richford_HabitatBlock.shp"
-PATCHES_PATH = "/media/tassia/rouge/ENVR401/Richford-GIS/Ranked_Parcels/Merged_Parcels_Agriculture.shp"
-HABBLOCK_PATH = "/media/tassia/rouge/ENVR401/Richford-GIS/Ranked_Parcels/Habitat_Blocks.shp"
+# Paths to habitat blocks and parcels files
+LULC_PATH = "/media/usb/ENVR401/Richford-GIS/Ranked_Parcels/LULC_Missisquoi_Richford_HabitatBlock.shp"
+PATCHES_PATH = "/media/usb/ENVR401/Richford-GIS/Ranked_Parcels/Merged_Parcels_Agriculture.shp"
+HABBLOCK_PATH = "/media/usb/ENVR401/Richford-GIS/Ranked_Parcels/Habitat_Blocks.shp"
 
 lulc_layer = iface.addVectorLayer(LULC_PATH, "LULC_Richford_Wild", "ogr")
 patches_layer = iface.addVectorLayer(PATCHES_PATH, "Agriculture_patches", "ogr")
@@ -57,12 +62,14 @@ patches_layer.dataProvider().addAttributes(
          QgsField(_INDEX_R, QVariant.Double)])
 patches_layer.updateFields()
 
+# Attributes to be created for the habitat_blocks data
 fields = QgsFields()
 fields.append(QgsField(_SOURCE_PATCH_FIELD, QVariant.Int))
 fields.append(QgsField(_NEIGHBORS_FIELD, QVariant.String))
 fields.append(QgsField(_AREA_FIELD, QVariant.Double))
 fields.append(QgsField(_PERIMETER_FIELD, QVariant.Double))
 
+# Create writer to produce output shapefile
 habitat_blocks_writer = QgsVectorFileWriter(HABBLOCK_PATH, "CP1250", fields, QGis.WKBPolygon, QgsCoordinateReferenceSystem("EPSG:102745"), "ESRI Shapefile")
 
 if habitat_blocks_writer.hasError() != QgsVectorFileWriter.NoError:
@@ -86,6 +93,7 @@ rank_dict = {}
 for f in patches_dict.values():
     print 'Working on patch %s' % f[_PATCH_FIELD]
     geom = f.geometry()
+    
     # Find all features that intersect the bounding box of the current feature.
     # We use spatial index to find the features intersecting the bounding box
     # of the current feature. This will narrow down the features that we need
@@ -107,7 +115,7 @@ for f in patches_dict.values():
             neighbor_patches.append(str(intersecting_f[_LULC_FIELD]))
             neighbor_patches_geom.append(loads(intersecting_f.geometry().asWkb()))
 
-    # add the source patch to neighbors just before creating the habitat block
+    # Add the source patch to neighbors just before creating the habitat block
     neighbor_patches_geom.append(loads(geom.asWkb()))
         
     habitat_block_series = GeoSeries(neighbor_patches_geom)
@@ -143,10 +151,10 @@ print "Parcel_ID, Index_R, [patches_list]"
 for key in sorted(rank_dict, key= lambda id: rank_dict[id].best_index, reverse=True):
     print rank_dict[key]
 
-# delete the writer to flush features to disk
+# Delete the writer to flush features to disk
 del habitat_blocks_writer
 
-# add new layer to the legend
+# Add new layer to the legend
 iface.addVectorLayer(HABBLOCK_PATH, "Habitat_Blocks", "ogr")
 
 print 'Processing complete.'
